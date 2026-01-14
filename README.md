@@ -151,6 +151,34 @@ https://github.com/timerring/CloudCheckin/blob/0b719258ab4f5f746b067798eb2a4185a
 > [!IMPORTANT]
 > 有时 cookie 会过期导致签到失败，如果遇到失败情况，请考虑重新获取 cookie 填入 Secrets，再手动执行 `Setup CircleCI Context and Secrets` workflow 同步 cookie 到 CircleCI。
 
+## 青龙面板部署
+
+如果你使用青龙面板，可以直接拉取本仓库使用：
+
+```bash
+# 在青龙面板中执行
+ql repo https://github.com/timerring/CloudCheckin.git "ql_" "" "curl_cffi"
+```
+
+### 环境变量配置
+
+在青龙面板的「环境变量」中添加：
+
+| 变量名 | 说明 | 示例 |
+| --- | --- | --- |
+| `NS_COOKIE` 或 `NODESEEK_COOKIE` | NodeSeek Cookie（多账号用 `&` 分隔） | `session=xxx` |
+| `DEEPFLOOD_COOKIE` | Deepflood Cookie（多账号用 `&` 分隔） | `session=xxx` |
+
+### 可用脚本
+
+| 脚本 | 功能 | 定时建议 |
+| --- | --- | --- |
+| `ql_nodeseek.py` | NodeSeek 自动签到 | `0 9 * * *` |
+| `ql_deepflood.py` | Deepflood 自动签到 | `5 9 * * *` |
+
+> [!TIP]
+> 获取 Cookie 方法请参考 [COOKIE 获取教程](https://blog.timerring.com/posts/the-way-to-get-cookie/)
+
 ## 本地调试
 
 ```bash
