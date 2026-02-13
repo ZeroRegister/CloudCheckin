@@ -1,0 +1,13 @@
+name = "cloud-checkin"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+# You can set these via 'wrangler secret put' for better security
+# NODESEEK_COOKIE = ""
+# DEEPFLOOD_COOKIE = ""
+# TELEGRAM_TOKEN = ""
+# TELEGRAM_CHAT_ID = ""
+
+[triggers]
+crons = ["0 0 * * *"] # Daily at 0:00 UTC (8:00 AM Beijing)

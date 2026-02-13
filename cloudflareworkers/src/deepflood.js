@@ -1,10 +1,10 @@
 /**
- * NodeSeek Check-in logic
+ * DeepFlood Check-in logic
  */
 
-export async function checkInNodeSeek(cookie) {
+export async function checkInDeepFlood(cookie) {
   if (!cookie) {
-    return { success: false, message: "No NODESEEK_COOKIE provided" };
+    return { success: false, message: "No DEEPFLOOD_COOKIE provided" };
   }
 
   const now = new Date();
@@ -17,7 +17,7 @@ export async function checkInNodeSeek(cookie) {
     minute: '2-digit',
     second: '2-digit',
     hour12: false
-  }) + " from NodeSeek\n";
+  }) + " from DeepFlood\n";
 
   const cookies = cookie.split('&');
   let allSuccess = true;
@@ -27,16 +27,19 @@ export async function checkInNodeSeek(cookie) {
     const singleCookie = cookies[i].trim();
     if (!singleCookie) continue;
 
-    console.log(`🔄 Processing NodeSeek account ${i + 1}...`);
+    console.log(`🔄 Processing DeepFlood account ${i + 1}...`);
+
+    // Random delay between 1 and 5 seconds to avoid detection but stay within CF limits
+    if (i > 0) {
+      const delay = Math.floor(Math.random() * 4000) + 1000;
+      console.log(`Waiting for ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+
     const result = await checkInAccount(singleCookie);
     results.push(result);
     summaryMessage += `Account ${i + 1}: ${result.message}\n`;
     if (!result.success) allSuccess = false;
-
-    // Small delay between accounts
-    if (i < cookies.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
   }
 
   return {
@@ -48,30 +51,20 @@ export async function checkInNodeSeek(cookie) {
 
 async function checkInAccount(cookie) {
   const headers = {
-    'Accept': '*/*',
-    'Accept-Encoding': 'gzip, deflate, br, zstd',
+    'Accept': 'application/json, text/plain, */*',
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-    'Content-Length': '0',
-    'Origin': 'https://www.nodeseek.com',
-    'Referer': 'https://www.nodeseek.com/board',
-    'Sec-CH-UA': '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
-    'Sec-CH-UA-Mobile': '?0',
-    'Sec-CH-UA-Platform': '"Windows"',
-    'Sec-Fetch-Dest': 'empty',
-    'Sec-Fetch-Mode': 'cors',
-    'Sec-Fetch-Site': 'same-origin',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+    'Content-Type': 'application/json',
+    'Origin': 'https://www.deepflood.com',
+    'Referer': 'https://www.deepflood.com/board',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
     'Cookie': cookie
   };
 
   try {
-    const url = 'https://www.nodeseek.com/api/attendance?random=true';
+    const url = 'https://www.deepflood.com/api/attendance?random=true';
     const response = await fetch(url, {
       method: 'POST',
-      headers: headers,
-      cf: {
-        resolveOverride: 'ipv4'
-      }
+      headers: headers
     });
 
     const responseText = await response.text();
@@ -82,9 +75,6 @@ async function checkInAccount(cookie) {
         let detailMessage = "✅ Success";
         if (responseData.message) {
           detailMessage += ` - ${responseData.message}`;
-        }
-        if (responseData.data && responseData.data.reward) {
-          detailMessage += ` - Reward: ${responseData.data.reward}`;
         }
         return { success: true, message: detailMessage };
       } catch (parseError) {
