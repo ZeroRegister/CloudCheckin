@@ -52,6 +52,10 @@ for idx, cookie in enumerate(cookie_list):
             success_message = f"NODESEEK account {idx+1} check-in successful"
             print(success_message, flush=True)
             send_tg_notification(success_message)
+        elif "请勿重复操作" in response.text or "已完成签到" in response.text:
+            info_message = f"NODESEEK account {idx+1} already checked in today"
+            print(info_message, flush=True)
+            send_tg_notification(info_message)
         else:
             fail_message = f"NODESEEK account {idx+1} check-in failed, response content: {response.text}"
             print(fail_message, flush=True)
