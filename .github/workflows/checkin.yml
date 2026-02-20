@@ -1,4 +1,4 @@
-name: Auto Check-in (NodeSeek & DeepFlood)
+name: Auto Check-in (NodeSeek & DeepFlood & AnyRouter)
 
 on:
   schedule:
@@ -22,6 +22,21 @@ jobs:
         run: |
           pip install -r requirements.txt
 
+      - name: Cache Playwright Browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-chromium
+
+      - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: python -m playwright install chromium --with-deps
+
+      - name: Install Playwright System Dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: python -m playwright install-deps chromium
+
       - name: Run NodeSeek Check-in
         env:
           NODESEEK_COOKIE: ${{ secrets.NODESEEK_COOKIE }}
@@ -37,3 +52,11 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PYTHONPATH: .
         run: python deepflood/deepflood.py
+
+      - name: Run AnyRouter Check-in
+        env:
+          ANYROUTER_ACCOUNTS: ${{ secrets.ANYROUTER_ACCOUNTS }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH: .
+        run: python anyrouter/anyrouter.py
