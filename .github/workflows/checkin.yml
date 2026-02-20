@@ -7,7 +7,7 @@ on:
   workflow_dispatch: # 允许你在 GitHub 页面手动点击运行
 
 jobs:
-  run-checkin:
+  nodeseek:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -19,8 +19,51 @@ jobs:
           python-version: '3.10'
 
       - name: Install Dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install curl_cffi python-dotenv
+
+      - name: Run NodeSeek Check-in
+        env:
+          NODESEEK_COOKIE: ${{ secrets.NODESEEK_COOKIE }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH: .
+        run: python nodeseek/nodeseek.py
+
+  deepflood:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install curl_cffi python-dotenv
+
+      - name: Run DeepFlood Check-in
+        env:
+          DEEPFLOOD_COOKIE: ${{ secrets.DEEPFLOOD_COOKIE }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH: .
+        run: python deepflood/deepflood.py
+
+  anyrouter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install curl_cffi python-dotenv playwright
 
       - name: Cache Playwright Browsers
         id: playwright-cache
@@ -36,22 +79,6 @@ jobs:
       - name: Install Playwright System Dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: python -m playwright install-deps chromium
-
-      - name: Run NodeSeek Check-in
-        env:
-          NODESEEK_COOKIE: ${{ secrets.NODESEEK_COOKIE }}
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          PYTHONPATH: .
-        run: python nodeseek/nodeseek.py
-
-      - name: Run DeepFlood Check-in
-        env:
-          DEEPFLOOD_COOKIE: ${{ secrets.DEEPFLOOD_COOKIE }}
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          PYTHONPATH: .
-        run: python deepflood/deepflood.py
 
       - name: Run AnyRouter Check-in
         env:
